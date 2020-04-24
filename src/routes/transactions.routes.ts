@@ -10,62 +10,50 @@ import CreateTransactionService from '../services/CreateTransactionService';
 const transactionsRouter = Router();
 
 transactionsRouter.get('/', async (request, response) => {
-  try {
-    const transactionsRepository = getCustomRepository(TransactionsRepository);
-    const transactions = await transactionsRepository.find({
-      relations: ['category'],
-    });
+  const transactionsRepository = getCustomRepository(TransactionsRepository);
+  const transactions = await transactionsRepository.find({
+    relations: ['category'],
+  });
 
-    transactions.map(transaction => {
-      const transactionWithouCategoryId = transaction;
-      delete transactionWithouCategoryId.category_id;
-      return transactionWithouCategoryId;
-    });
+  transactions.map(transaction => {
+    const transactionWithouCategoryId = transaction;
+    delete transactionWithouCategoryId.category_id;
+    return transactionWithouCategoryId;
+  });
 
-    const balance = await transactionsRepository.getBalance();
+  const balance = await transactionsRepository.getBalance();
 
-    return response.json({ transactions, balance });
-  } catch (err) {
-    return response.status(400).json({ error: err.message });
-  }
+  return response.json({ transactions, balance });
 });
 
 transactionsRouter.post('/', async (request, response) => {
-  try {
-    const { title, value, type, category } = request.body;
+  const { title, value, type, category } = request.body;
 
-    const createTransactionService = new CreateTransactionService();
+  const createTransactionService = new CreateTransactionService();
 
-    const transaction = await createTransactionService.execute({
-      title,
-      value,
-      type,
-      category,
-    });
+  const transaction = await createTransactionService.execute({
+    title,
+    value,
+    type,
+    category,
+  });
 
-    return response.json(transaction);
-  } catch (err) {
-    return response.status(400).json({ error: err.message });
-  }
+  return response.json(transaction);
 });
 
 transactionsRouter.delete('/:id', async (request, response) => {
-  try {
-    const { id } = request.params;
+  const { id } = request.params;
 
-    const transactionsRepository = getCustomRepository(TransactionsRepository);
-    const transaction = await transactionsRepository.findOne(id);
+  const transactionsRepository = getCustomRepository(TransactionsRepository);
+  const transaction = await transactionsRepository.findOne(id);
 
-    if (!transaction) {
-      return response.status(400).json({ error: 'Transação não existente' });
-    }
-
-    transactionsRepository.remove(transaction);
-
-    return response.status(204).send();
-  } catch (err) {
-    return response.status(400).json({ error: err.message });
+  if (!transaction) {
+    return response.status(400).json({ error: 'Transação não existente' });
   }
+
+  await transactionsRepository.remove(transaction);
+
+  return response.status(204).send();
 });
 
 transactionsRouter.post('/import', async (request, response) => {

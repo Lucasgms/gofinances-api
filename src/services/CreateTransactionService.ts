@@ -1,6 +1,6 @@
-// import AppError from '../errors/AppError';
-
 import { getCustomRepository, getRepository } from 'typeorm';
+import AppError from '../errors/AppError';
+
 import Transaction from '../models/Transaction';
 
 import TransactionsRepository from '../repositories/TransactionsRepository';
@@ -27,7 +27,10 @@ class CreateTransactionService {
       const { total } = await transactionsRepository.getBalance();
 
       if (total < value) {
-        throw Error("You don't have enough money to complete this transaction");
+        throw new AppError(
+          "You don't have enough money to complete this transaction",
+          400,
+        );
       }
     }
 
