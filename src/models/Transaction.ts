@@ -20,7 +20,7 @@ class Transaction {
   @Column()
   type: 'income' | 'outcome';
 
-  @Column('numeric')
+  @Column('double precision')
   value: number;
 
   @Column()
