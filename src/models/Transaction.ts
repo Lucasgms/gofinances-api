@@ -20,13 +20,13 @@ class Transaction {
   @Column()
   type: 'income' | 'outcome';
 
-  @Column('double precision')
+  @Column('decimal')
   value: number;
 
   @Column()
   category_id: string;
 
-  @ManyToOne(() => Category)
+  @ManyToOne(() => Category, category => category.transaction, { eager: true })
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
